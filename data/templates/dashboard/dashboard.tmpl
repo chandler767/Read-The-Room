@@ -1,0 +1,270 @@
+<!-- Demo using Amazon Comprehend API-->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="icon" type="image/png" href="icon.png">
+        <meta name="description" content="Demo using Amazon Comprehend API.">
+        <meta name="keywords" content="API,amazon,speech,SDK,tutorial,demo">
+        <meta name="author" content="Chandler Mayo">
+        <meta property="og:title" content="Read The Room" />
+        <meta property="og:type" content="website" />
+        <meta property="og:description" content="Demo using Amazon Comprehend API." />
+        <meta property="og:site_name" content="Read The Room" />
+        <link rel="stylesheet" href="styles.css">
+        <title>Read The Room</title>
+    </head>
+    <body>
+        <div class="page-container">
+            <div class="header">
+                <h1>Read The Room</h1>
+                <p>Enable microphone access to perform real-time speech analysis using <a href="https://aws.amazon.com/comprehend/">Amazon Comprehend</a>.</p>
+                <hr>
+            </div>
+            <div class="section group">
+                <div class="col span_1">
+                    <div id="sentiment-gauge"></div>               
+                </div>
+                <div class="col span2">
+                    <div id="sentiment-history"></div>
+                </div>
+            </div>
+            <div class="header">
+                <h2>Detected Key Phrases</h2>
+                <div id="key-phrases">
+                    <p>Waiting for speech...</p>
+                </div>
+            </div>
+        </div>
+     <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/highcharts-more.js"></script>
+    <script src="https://code.highcharts.com/modules/solid-gauge.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+        <script>
+        var gaugeOptions = {
+            chart: {
+                type: 'solidgauge',
+                backgroundColor:'rgba(255, 255, 255, 0.2)'
+            },
+
+            title: "Audio Sentiment",
+
+            pane: {
+                center: ['50%', '85%'],
+                size: '140%',
+                startAngle: -90,
+                endAngle: 90,
+                background: {
+                    backgroundColor:
+                        Highcharts.defaultOptions.legend.backgroundColor || '#EEE',
+                    innerRadius: '60%',
+                    outerRadius: '100%',
+                    shape: 'arc'
+                }
+            },
+            // the value axis
+            yAxis: {
+                stops: [
+                    [0.1, '#DF5353'], // red
+                    [0.5, '#DDDF0D'], // yellow
+                    [0.9, '#55BF3B'] // green
+                ],
+                lineWidth: 0,
+                tickWidth: 0,
+                minorTickInterval: null,
+                tickAmount: 1,
+                labels: {
+                y: 16,
+                formatter: function () {
+                    console.log(this.value);
+                    return this.value ? 'Positive' : 'Negative'
+                },
+                style: {
+                    color: 'black',
+                    fontSize:'15px'                }
+            }
+            },
+
+            tooltip: {
+                style: {
+                    display: "none",
+                }
+            },
+
+            plotOptions: {
+                solidgauge: {
+                    dataLabels: {
+                        y: 5,
+                        borderWidth: 0,
+                        useHTML: true
+                    }
+                }
+            }
+        };
+
+        // The speed gauge
+        var chartSentiment = Highcharts.chart('sentiment-gauge', Highcharts.merge(gaugeOptions, {
+            yAxis: {
+                min: 0,
+                max: 12,
+                title: {
+                    y: -150,
+                    text: 'Audio Sentiment',
+                    style: {
+                        color: 'black',
+                        fontSize:'18px'
+                    }
+                }
+
+            },
+
+            credits: {
+                enabled: false
+            },
+
+            series: [{
+                data: [1],
+                name: 'Audio Sentiment',
+                dataLabels: {
+                    enabled: false
+                }
+            }]
+
+        }));
+
+
+chartSentiment.series[0].points[0].update(1);
+
+
+        var sentimentHistory = Highcharts.chart('sentiment-history', {
+
+            chart: {
+                backgroundColor:'rgba(255, 255, 255, 0.2)'
+            },
+
+            title: {
+                text: 'Sentiment History',
+                style: {
+                    color: 'black',
+                    fontSize:'18px'
+                }
+            },
+
+            yAxis: {
+                title: {
+                    text: 'Confidence'
+                },
+                max: 1
+            },
+
+            xAxis: {
+                accessibility: {
+                    rangeDescription: 'Sentiment history over time'
+                },
+                title: {
+                    text: 'Time'
+                },
+                scrollbar: {
+                    enabled: true
+                },
+                labels: {
+                    enabled: false
+                }
+            },
+
+            tooltip: {
+                style: {
+                    display: "none",
+                }
+            },
+
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                verticalAlign: 'middle'
+            },
+
+            plotOptions: {
+                series: {
+                    label: {
+                        connectorAllowed: false
+                    },
+                    pointStart: 0
+                }
+            },
+
+            series: [{
+                name: 'Postive',
+                data: [0.1, 0.5, 0.1]
+            }, {
+                name: 'Neutral',
+                data: [0.1, 0.1, 0.9]
+            }, {
+                name: 'Negative',
+                data: [1, 0.3, 0.5]
+            }],
+
+            credits: {
+                enabled: false
+            },
+
+            responsive: {
+                rules: [{
+                    condition: {
+                        maxWidth: "49%"
+                    },
+                    chartOptions: {
+                        legend: {
+                            layout: 'horizontal',
+                            align: 'center',
+                            verticalAlign: 'bottom'
+                        }
+                    }
+                }]
+            }
+
+        });
+
+sentimentHistory.series[0].addPoint([0.1]);
+sentimentHistory.series[1].addPoint([0.5]);
+sentimentHistory.series[2].addPoint([1]);
+
+var recognition = new webkitSpeechRecognition();
+recognition.continuous     = true;
+recognition.interimResults = true;
+var content = "";
+
+recognition.onstart = function() {
+  console.log("Recognition started");
+};
+recognition.onresult = function(event){
+  console.log(event.results);
+  var current = event.resultIndex;
+ 
+  var transcript = event.results[current][0].transcript;
+ 
+    content += transcript;
+    console.log(content);
+};
+recognition.onerror = function(e) {
+  console.log("Error");
+};
+
+recognition.onend = function() {
+    console.log("Speech recognition ended");
+    recognition.start();
+};
+
+function start_speech() {
+  recognition.lang = 'en-IN'; // 'en-US' works too, as do many others
+  recognition.start();
+}
+
+start_speech()
+
+
+             //{{.ComprehendAPI}}
+        </script> 
+   </body>
+</html>

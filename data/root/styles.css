@@ -1,0 +1,47 @@
+
+#sentiment-gauge {
+	height: 400px;
+}
+
+#key-phrases {outline: 2px solid #000; padding: 8px; margin: 8px; }
+
+.header {
+	background-color: #DEE0E4;
+	text-align: center;
+}
+
+.page-container {
+	background-color: #363638;
+}
+
+.section {
+	clear: both;
+	padding: 0px;
+	margin: 0px;
+	background-color: #DEE1EA;
+}
+
+.col {
+	display: block;
+	float:left;
+	margin: 1% 0 1% 1.6%;
+	width: 49.2%;
+	text-align: center;
+}
+.col:first-child { margin-left: 0; }
+
+.group:before,
+.group:after { content:""; display:table; }
+.group:after { clear:both;}
+.group { zoom:1; /* For IE 6/7 */ }
+
+
+@media only screen and (max-width: 480px) {
+	.col { 
+		margin: 1% 0 1% 0%;
+	}
+}
+
+@media only screen and (max-width: 480px) {
+	.col { width: 100%; }
+}
