@@ -1,5 +1,5 @@
 # Read The Room
-This project is intended to be a supplimental tool for children in speech therapy, people with autism, non-native english-speakers, or anyone who could benefit from more engagement in conversations by using insights from Amazon Comprehend.
+This project is intended to be a supplemental tool for children in speech therapy, people with autism, non-native english-speakers, or anyone who could benefit from more engagement in conversations by using insights from Amazon Comprehend.
 
 This demo processes conversations in real-time with the [Amazon Comprehend](https://aws.amazon.com/comprehend/) natural language processing (NLP) service to gain insights about what was said. 
 
