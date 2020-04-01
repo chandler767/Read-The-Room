@@ -20,7 +20,7 @@ import (
 	"runtime"
 )
 
-// To run this web application: go get -d && go run main.go
+// To run this demo web application: go get -d && go run main.go
 
 var (
 	dashboardTemplate = template.Must(template.ParseFiles("../data/templates/dashboard/dashboard.tmpl"))
