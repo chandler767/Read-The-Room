@@ -1,11 +1,11 @@
 # Read The Room
-This demo processes conversations in real-time with the [Amazon Comprehend](https://aws.amazon.com/comprehend/) natural language processing (NLP) service to gain insights about what was said.
+This project is intended to be a supplimental tool for children in speech therapy, people with autism, non-native english-speakers, or anyone who could benefit from more engagement in conversations by using insights from Amazon Comprehend.
+
+This demo processes conversations in real-time with the [Amazon Comprehend](https://aws.amazon.com/comprehend/) natural language processing (NLP) service to gain insights about what was said. 
 
 The conversation sentiment, sentiment history, and any detected key words/phrases are displayed in real-time on the dashboard. 
 
 ![](https://i.imgur.com/mOapUsp.gif)
-
-This project is intended to be a supplimental tool for children in speech therapy, people with autism, non-native english-speakers, or anyone who could benefit from more engagement in conversations using insights from Amazon Comprehend.
 
 ## Running The Demo
 Private Repo Info: AWS keys are included in this repo for you to demo. Please do not share these keys. You may skip the steps to replace the keys with your own. 
