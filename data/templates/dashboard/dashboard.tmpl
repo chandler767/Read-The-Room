@@ -37,11 +37,11 @@
                 </div>
             </div>
         </div>
-     <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="https://code.highcharts.com/highcharts-more.js"></script>
     <script src="https://code.highcharts.com/modules/solid-gauge.js"></script>
     <script src="https://code.highcharts.com/modules/accessibility.js"></script>
-        <script>
+    <script>
         var gaugeOptions = {
             chart: {
                 type: 'solidgauge',
@@ -77,7 +77,6 @@
                 labels: {
                 y: 16,
                 formatter: function () {
-                    console.log(this.value);
                     return this.value ? 'Positive' : 'Negative'
                 },
                 style: {
@@ -103,14 +102,14 @@
             }
         };
 
-        // The speed gauge
         var chartSentiment = Highcharts.chart('sentiment-gauge', Highcharts.merge(gaugeOptions, {
+            
             yAxis: {
                 min: 0,
                 max: 12,
                 title: {
                     y: -150,
-                    text: 'Audio Sentiment',
+                    text: 'Current Sentiment',
                     style: {
                         color: 'black',
                         fontSize:'18px'
@@ -125,17 +124,13 @@
 
             series: [{
                 data: [1],
-                name: 'Audio Sentiment',
+                name: 'Current Sentiment',
                 dataLabels: {
                     enabled: false
                 }
             }]
 
         }));
-
-
-chartSentiment.series[0].points[0].update(1);
-
 
         var sentimentHistory = Highcharts.chart('sentiment-history', {
 
@@ -165,9 +160,6 @@ chartSentiment.series[0].points[0].update(1);
                 title: {
                     text: 'Time'
                 },
-                scrollbar: {
-                    enabled: true
-                },
                 labels: {
                     enabled: false
                 }
@@ -196,13 +188,10 @@ chartSentiment.series[0].points[0].update(1);
 
             series: [{
                 name: 'Postive',
-                data: [0.1, 0.5, 0.1]
             }, {
-                name: 'Neutral',
-                data: [0.1, 0.1, 0.9]
+                name: 'Neutral'
             }, {
-                name: 'Negative',
-                data: [1, 0.3, 0.5]
+                name: 'Negative'
             }],
 
             credits: {
@@ -226,45 +215,66 @@ chartSentiment.series[0].points[0].update(1);
 
         });
 
-sentimentHistory.series[0].addPoint([0.1]);
-sentimentHistory.series[1].addPoint([0.5]);
-sentimentHistory.series[2].addPoint([1]);
+        if ('webkitSpeechRecognition' in window) {
 
-var recognition = new webkitSpeechRecognition();
-recognition.continuous     = true;
-recognition.interimResults = true;
-var content = "";
+            var recognition = new webkitSpeechRecognition();
+            recognition.continuous     = true;
 
-recognition.onstart = function() {
-  console.log("Recognition started");
-};
-recognition.onresult = function(event){
-  console.log(event.results);
-  var current = event.resultIndex;
- 
-  var transcript = event.results[current][0].transcript;
- 
-    content += transcript;
-    console.log(content);
-};
-recognition.onerror = function(e) {
-  console.log("Error");
-};
+            recognition.onstart = function() {
+              console.log("Recognition started");
+            };
 
-recognition.onend = function() {
-    console.log("Speech recognition ended");
-    recognition.start();
-};
+            recognition.onresult = function(event){ // Send text and update charts with response.
+                var current = event.resultIndex;
+                var transcript = event.results[current][0].transcript;
+                let request = new XMLHttpRequest();
+                request.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                       var json = JSON.parse(this.response);
+                        if (json.Sentiment.Sentiment == "POSITIVE") {
+                            chartSentiment.series[0].points[0].update(12);
+                        } else if (json.Sentiment.Sentiment == "NEGATIVE") {
+                            chartSentiment.series[0].points[0].update(1);
+                        } else {
+                            chartSentiment.series[0].points[0].update(6);
+                        }
+                        sentimentHistory.series[0].addPoint([json.Sentiment.SentimentScore.Positive]);
+                        sentimentHistory.series[1].addPoint([json.Sentiment.SentimentScore.Neutral]);
+                        sentimentHistory.series[2].addPoint([json.Sentiment.SentimentScore.Negative]);
+                        document.getElementById('key-phrases').innerHTML = "<p>";
+                        for (var i = 0; i < json.KeyPhrases.KeyPhrases.length; i++) {
+                            document.getElementById('key-phrases').innerHTML = document.getElementById('key-phrases').innerHTML + "\"" + json.KeyPhrases.KeyPhrases[i].Text + "\" ";
+                        }
+                        if (json.KeyPhrases.KeyPhrases.length <= 0) {
+                            document.getElementById('key-phrases').innerHTML = "<p>No key phrases detected.";
+                        }
+                        document.getElementById('key-phrases').innerHTML = document.getElementById('key-phrases').innerHTML + "</p>";
+                    }
+                };
+                request.open('POST', '{{.ComprehendAPI}}');
+                request.send(transcript);
+            };
 
-function start_speech() {
-  recognition.lang = 'en-IN'; // 'en-US' works too, as do many others
-  recognition.start();
-}
+            recognition.onerror = function(e) {
+              console.log("Error");
+            };
 
-start_speech()
+            recognition.onend = function() {
+                console.log("Speech recognition ended");
+                recognition.start();
+            };
 
+            function start_speech() {
+                recognition.lang = 'en-US'; // 'en-US' works too, as do many others
+                recognition.maxAlternatives = 1;
+                recognition.profanity_filter=false;
+                recognition.start();
+            }
 
-             //{{.ComprehendAPI}}
+            start_speech();
+        } else {
+            alert("Speech recognition API is not supported in your browser.");
+        }
         </script> 
    </body>
 </html>

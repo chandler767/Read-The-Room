@@ -4,6 +4,11 @@ package main
 
 import (
 	"../packages/dontlist"
+	"encoding/json"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/comprehend"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -58,14 +63,52 @@ var analysisHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	if len(text) > 0 {
-		w.Write([]byte("Processing text"))
+		// Create a Session with a custom region
+		sess := session.Must(session.NewSession(&aws.Config{
+			Region:      aws.String("us-east-1"),
+			Credentials: credentials.NewStaticCredentials(awsAccessKey, awsSecretKey, ""),
+		}))
+
+		// Create a Comprehend client from just a session.
+		client := comprehend.New(sess)
+
+		params := comprehend.DetectSentimentInput{}
+		params.SetLanguageCode("en")
+		params.SetText(string(text))
+
+		req, resp := client.DetectSentimentRequest(&params)
+
+		err := req.Send()
+		if err != nil { // resp is now filled
+			http.Error(w, "Unable to analyse sentiment.\n", http.StatusBadRequest)
+			return
+		}
+
+		paramsP := comprehend.DetectKeyPhrasesInput{}
+		paramsP.SetLanguageCode("en")
+		paramsP.SetText(string(text))
+
+		req2, resp2 := client.DetectKeyPhrasesRequest(&paramsP)
+
+		err = req2.Send()
+		if err != nil { // resp2 is now filled
+			http.Error(w, "Unable to analyse key phrases.\n", http.StatusBadRequest)
+			return
+		}
+
+		jsonOffer := map[string]interface{}{ // Forward response to dashboard.
+			"Sentiment":  *resp,
+			"KeyPhrases": *resp2,
+		}
+		json.NewEncoder(w).Encode(jsonOffer)
+		return
 	} else {
-		w.Write([]byte("Missing text to analyse.\n"))
+		http.Error(w, "Missing text.\n", http.StatusBadRequest)
 	}
 	return
 })
 
-// open opens the specified URL in the default browser of the user.
+// Opens the specified URL in the default browser of the user.
 func open(url string) error {
 	var cmd string
 	var args []string
