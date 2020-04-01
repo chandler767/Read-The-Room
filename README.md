@@ -16,13 +16,13 @@ Private Repo Info: AWS keys are included in this repo for you to demo. Please do
 
 3. Navigate to the 'application' folder and open '.env'. You may need to show hidden files to see the '.env' file.
 
-4. Add your AWS keys to the '.env' files.
+4. Add your AWS keys to the '.env' file.
 ```
 AWS_ACCESS_KEY=YOUR_ACCESS_KEY_HERE
 AWS_SECRET_KEY=YOUR_SECRET_KEY_HERE
 ```
 
-5. Get all the dependencies and run the project (still in the application folder):
+5. Use your console to get all the dependencies and run the project (from within the 'application' folder):
 `go get -d && go run main.go`
 
 6. A browser window should open automatically and the dashboard should be displayed. Use Google Chrome and navigate to `http://localhost:8091/` if the dashboard does not display or if the dashboard opens in an incompatible browser.
