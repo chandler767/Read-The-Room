@@ -8,8 +8,6 @@ The conversation sentiment, sentiment history, and any detected key words/phrase
 ![](https://i.imgur.com/mOapUsp.gif)
 
 ## Running The Demo
-Private Repo Info: AWS keys are included in this repo for you to demo. Please do not share these keys. You may skip the steps to replace the keys with your own. 
-
 1. Before you can run this demo you need an AWS account and IAM user credentials. It's important you create and restrict the credentials properly. Learn more about and create the credentials before you get started: [Authentication and Access Control for Amazon Comprehend](https://docs.aws.amazon.com/comprehend/latest/dg/auth-and-access-control.html)
 
 2. Fork/clone this repo.
