@@ -1,5 +1,5 @@
 # Read The Room
-This demo processes conversations in real-time with the [Amazon Comprehend](https://aws.amazon.com/comprehend/) natural language processing (NLP) service to gain insights about what was said. 
+This demo processes conversations in real-time with the [Amazon Comprehend](https://aws.amazon.com/comprehend/) natural language processing (NLP) service to gain insights about the conversation. 
 
 The conversation sentiment, sentiment history, and any detected key words/phrases are displayed in real-time on the dashboard. 
 
